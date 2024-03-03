@@ -7,8 +7,10 @@ import {
   SafeAreaView,
   Platform,
   FlatList,
+  SectionList,
 } from "react-native";
 import data from "./data.json";
+import groupData from "./group-data.json";
 
 export default function App() {
   return (
@@ -23,7 +25,7 @@ export default function App() {
         })} */}
 
       <View style={styles.scrollView}>
-        <FlatList
+        {/* <FlatList
           data={data}
           renderItem={({ item }) => {
             return (
@@ -33,6 +35,28 @@ export default function App() {
               </View>
             );
           }}
+        /> */}
+
+        <SectionList
+          sections={groupData}
+          renderItem={({ item }) => {
+            return (
+              <View style={styles.listContainer}>
+                <Text style={styles.listText}>{item}</Text>
+              </View>
+            );
+          }}
+          renderSectionHeader={({ section }) => {
+            return (
+              <View style={{ marginBottom: 5 }}>
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                  {section.type}
+                </Text>
+              </View>
+            );
+          }}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          SectionSeparatorComponent={() => <View style={{ height: 15 }} />}
         />
       </View>
       <StatusBar style="auto" />
@@ -53,11 +77,10 @@ const styles = StyleSheet.create({
   listContainer: {
     borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 10,
     padding: 10,
   },
   listText: {
     fontSize: 20,
-    fontWeight: "500",
+    fontWeight: "400",
   },
 });
