@@ -13,6 +13,28 @@ import {
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    let arrs = {};
+
+    if (!username) arrs.username = "Username is required.";
+    if (!password) arrs.password = "Password is required.";
+
+    setErrors(arrs);
+
+    return Object.keys(arrs).length === 0; // true || false
+  };
+
+  handleSubmit = () => {
+    if (validateForm()) {
+      console.log("Submitted", username, password);
+      setUsername("");
+      setPassword("");
+      setErrors({});
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View
@@ -24,23 +46,39 @@ const App = () => {
           source={require("./assets/adaptive-icon.png")}
           style={styles.image}
         />
+        {/* for username */}
         <Text style={styles.label}>Username</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            errors.username ? { borderColor: "red" } : null,
+          ]}
           placeholder="Enter your username"
           value={username}
           onChangeText={setUsername}
           autoCapitalize="words"
         />
+        {errors.username ? (
+          <Text style={styles.errorText}>{errors.username}</Text>
+        ) : null}
+
+        {/* for password */}
         <Text style={styles.label}>Password</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            errors.username ? { borderColor: "red" } : null,
+          ]}
           placeholder="Enter your password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={true}
         />
-        <Button title="Login" onPress={() => console.log(username, password)} />
+        {errors.password ? (
+          <Text style={styles.errorText}>{errors.password}</Text>
+        ) : null}
+
+        <Button title="Login" onPress={handleSubmit} />
       </View>
     </KeyboardAvoidingView>
   );
@@ -71,12 +109,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
   },
-
   image: {
     width: 100,
     height: 100,
     alignSelf: "center",
     marginBottom: 30,
+  },
+  errorText: {
+    color: "red",
+    marginTop: -10,
+    marginBottom: 10,
   },
 });
 
