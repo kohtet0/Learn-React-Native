@@ -18,31 +18,45 @@ export default function App() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [posting, setPosting] = useState(false);
+  const [error, setError] = useState("");
 
   const fetchData = async (limit = 10) => {
-    const res = await fetch(
-      `https://jsonplaceholder.typicode.com/posts?_limit=${limit}`
-    );
-    const json = await res.json();
-    setPostList(json);
-    setIsLoading(false);
+    try {
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/posts?_limit=${limit}`
+      );
+      const json = await res.json();
+      setPostList(json);
+      setIsLoading(false);
+      setError("");
+    } catch (error) {
+      setIsLoading(false);
+      setError("Failed to fetch post!");
+    }
   };
 
   const handleAdd = async () => {
-    setPosting(true);
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        body,
-      }),
-    });
-    const newPost = await res.json();
-    setPostList((pre) => [newPost, ...pre]);
-    setPosting(false);
-    setTitle("");
-    setBody("");
+    try {
+      setPosting(true);
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          body,
+        }),
+      });
+      const newPost = await res.json();
+      setPostList((pre) => [newPost, ...pre]);
+      setPosting(false);
+      setTitle("");
+      setBody("");
+    } catch (error) {
+      setPosting(false);
+      setTitle("");
+      setBody("");
+      setError("Failed to add post!");
+    }
   };
 
   const handleRefresh = () => {
@@ -65,43 +79,53 @@ export default function App() {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Enter title"
-          style={styles.input}
-          value={title}
-          onChangeText={setTitle}
-        />
-        <TextInput
-          placeholder="Enter body"
-          style={styles.input}
-          value={body}
-          onChangeText={setBody}
-        />
-        <Button
-          title={posting ? "Adding..." : "Add post"}
-          onPress={handleAdd}
-        />
-      </View>
-      <FlatList
-        data={postList}
-        renderItem={({ item }) => {
-          return (
-            <View style={styles.cardContainer}>
-              <Text style={styles.titleText}>{item.title}</Text>
-              <Text style={styles.bodyText}>{item.body}</Text>
-            </View>
-          );
-        }}
-        ItemSeparatorComponent={<View style={{ height: 20 }} />}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>There is no post</Text>
-        }
-        ListHeaderComponent={<Text style={styles.headerText}>Posts</Text>}
-        ListFooterComponent={<Text style={styles.footerText}>End of post</Text>}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
-      />
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Enter title"
+              style={styles.input}
+              value={title}
+              onChangeText={setTitle}
+            />
+            <TextInput
+              placeholder="Enter body"
+              style={styles.input}
+              value={body}
+              onChangeText={setBody}
+            />
+            <Button
+              title={posting ? "Adding..." : "Add post"}
+              onPress={handleAdd}
+            />
+          </View>
+          <FlatList
+            data={postList}
+            renderItem={({ item }) => {
+              return (
+                <View style={styles.cardContainer}>
+                  <Text style={styles.titleText}>{item.title}</Text>
+                  <Text style={styles.bodyText}>{item.body}</Text>
+                </View>
+              );
+            }}
+            ItemSeparatorComponent={<View style={{ height: 20 }} />}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>There is no post</Text>
+            }
+            ListHeaderComponent={<Text style={styles.headerText}>Posts</Text>}
+            ListFooterComponent={
+              <Text style={styles.footerText}>End of post</Text>
+            }
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -162,5 +186,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
+  },
+  errorContainer: {
+    backgroundColor: "tomato",
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 10,
+  },
+  errorText: {
+    fontSize: 20,
+    color: "yellow",
+    textAlign: "center",
   },
 });
